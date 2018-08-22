@@ -166,8 +166,8 @@ class Controller:
         self.save_data = SaveData(args, self.cmd_client)
 
         # the drone speed range
-        self.high_speed = 0.7
-        self.low_speed = 0.0
+        self.high_speed = 0.5
+        self.low_speed = 0.1
 
         # the yaw rate range
         self.yaw_range = [0.5, 8.0]
@@ -183,7 +183,7 @@ class Controller:
         self.yy_time = 6
 
         # the random height for the starting of each round
-        self.start_random_height = [0.5, 1.3]
+        self.start_random_height = [0, 0.5]
 
 
     def make_dir(self):
@@ -265,7 +265,7 @@ class Controller:
         for i in range(6):
             # increase randomness
             yaw = np.random.uniform(low=self.yaw_range[0], high=self.yaw_range[1])
-            height = np.random.uniform(low = -0.5, high=0.5)
+            height = np.random.uniform(low = 0.1, high=0.5)
             print "current mode: {}".format(yaw)
 
             # sample yaw
