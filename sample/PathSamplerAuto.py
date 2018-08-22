@@ -2,22 +2,40 @@ from os.path import *
 from AirSimClient import *
 import argparse
 from math import sin, cos, pi
-
+from ForestEnv import get_anchors
 '''
+The sampling process includes four levels:
+  waypoints(anchor), round, sequence and images
+  
+1.  Users should drag the drone in the environment to
+    collect enough anchors, and specify the anchor 
+    position in ForestEnv.py, where the first three 
+    dimension is [x, y, z] and the rest are the starting
+    angles.
+
+2.  Be careful that the z in [x, y, z] is the desired height
+    you want the drone to fly to, not the ground point. Based
+    on this z, there will be another random height to be added,
+    tune this height in Controller, 
+    called self.start_random_height
+
+3.  Each time to run this script, please ensure the dataset
+    folder is empty! 
+    
+    
+4. Please ensure the drone is at least 1 meter high above the ground
+
+
 How to use this script:
+
 1. put AirSimClient.py and this file in the same folder
 
-2. modify root path in main function
-    root = join('/home/zhudelong/Videos/airsim', str(sample_idx))
+2. modify pnt_root path in main function
+    pnt_root = join('/home/zhudelong/Videos/airsim', str(sample_idx))
 
-3. modify the sample_idx in main function for "each new sampling location"
-    sample_idx = 0
+3. drag the drone to desired position and orientation and record the points
 
-4. drag the drone to desired position
-
-5. run airsim, then this script
-
-6. after sampling one round, please slack Deron for checking
+4. run airsim, then this script
 
 '''
 
@@ -95,6 +113,7 @@ class SaveData():
     def loop(self, seq):
         idx = self.idx
         states = self.state_client.getMultirotorState()
+
         # actor_pos = self.state_client.simGetObjectPose('TargetPoint22')
         # print actor_pos
         images = self.state_client.simGetImages(self.img_type)
@@ -134,6 +153,7 @@ class SaveData():
         self.idx += 1
 
 
+
 class Controller:
     def __init__(self, args, ip=''):
         self.args = args
@@ -144,18 +164,26 @@ class Controller:
         self.pnt_idx = 0
         self.seq_idx = 0
         self.save_data = SaveData(args, self.cmd_client)
-        self.high_speed = 0.5
-        self.low_speed = 0.1
+
+        # the drone speed range
+        self.high_speed = 0.7
+        self.low_speed = 0.0
+
+        # the yaw rate range
+        self.yaw_range = [0.5, 8.0]
+
+        # represent different sampling mode
         self.mask_t = [[0, 0, 1], [0, 1, 0], [0, 1, 1], [1, 0, 0], [1, 0, 1], [1, 1, 0], [1, 1, 1]]
 
-        self.target = np.asarray([[7143, -557, 409],
-                                  [5769, -1679, 530],
-                                  [4828, -3595, 685],
-                                  [6919, -4799, 0.00],
-                                  [6787, 1622, -500]]) / 100
-        self.orig = np.array([5650, 730, 380]) / 100.0
-        self.tgt = self.target - self.orig
-        self.tgt[:, 2] = -self.tgt[:, 2]
+        # sampling time for each mode in self.mask_t
+        self.tt_time = 10
+        self.ty_time = 10
+
+        # sampling time for yaw
+        self.yy_time = 6
+
+        # the random height for the starting of each round
+        self.start_random_height = [0.5, 1.3]
 
 
     def make_dir(self):
@@ -174,10 +202,17 @@ class Controller:
 
     def write(self, interval):
         start = time.time()
+
+        # get current sequence number and make corresponding dirs
         seq = self.make_dir()
+
+        # remove start unstable frames
         time.sleep(1)
         print 'saving ...'
+
+        # write data
         img_num = 0
+        crs_num = 0
         while True:
             self.save_data.loop(seq)
             now = time.time()
@@ -186,7 +221,7 @@ class Controller:
                 break
         self.seq_idx += 1
         time.sleep(1)
-        print 'finished saving, total {} images!'.format(img_num)
+        print 'finished saving, total {} images, crashed {} images!'.format(img_num, crs_num)
 
     def parse_vel(self, vel):
         roll_pitch_yaw = self.cmd_client.getPitchRollYaw()
@@ -194,6 +229,7 @@ class Controller:
         x = vel[0] * cos(yaw) - vel[1] * sin(yaw)
         y = vel[0] * sin(yaw) + vel[1] * cos(yaw)
         return [x, y, vel[2]]
+
 
     def tt(self, mode, vel, interval):
         # to increase randomness, we randomly sample speed for each mod
@@ -228,13 +264,13 @@ class Controller:
     def yy(self):
         for i in range(6):
             # increase randomness
-            yaw = np.random.uniform(low=0.5, high=8.0)
-            height = np.random.uniform(low=0.5, high=1)
+            yaw = np.random.uniform(low=self.yaw_range[0], high=self.yaw_range[1])
+            height = np.random.uniform(low = -0.5, high=0.5)
             print "current mode: {}".format(yaw)
 
             # sample yaw
-            self.cmd_client.rotateByYawRate(yaw, 6)
-            self.write(6)
+            self.cmd_client.rotateByYawRate(yaw, self.yy_time)
+            self.write(self.yy_time)
 
             # random height
             self.cmd_client.moveByVelocity(0.0, 0.0, -height, duration=1)
@@ -247,48 +283,47 @@ class Controller:
 
         # tt combination
         for mode in self.mask_t:
-            self.tt(mode, vel, 10)
+            self.tt(mode, vel, self.tt_time)
 
         # ty combination
         for mode in self.mask_t:
-            yaw = np.random.uniform(low=0.5, high=8.0)
-            self.ty(mode, vel, yaw, 10)
+            yaw = np.random.uniform(low=self.yaw_range[0], high=self.yaw_range[1])
+            self.ty(mode, vel, yaw, self.ty_time)
 
         # yy
         self.yy()
 
-    def execute_sampling(self, num):
-
+    def execute_sampling(self, num, yaws):
         # record the sample location
         cur_pos = self.cmd_client.getPosition()
         for i in range(num):
+
             # reset sequence idx for each sample
             self.seq_idx = 0
             print 'start {}-th sampling at current position!'.format(i)
 
+            # rotate to sample yaws
+            self.cmd_client.rotateToYaw(yaws[i])
+            print 'yaw angle is set to {}!'.format(yaws[i])
+
             # randomly start height
-            height = np.random.uniform(0.5, 0.9)
+            height = np.random.uniform(self.start_random_height[0], self.start_random_height[1])
             self.cmd_client.moveByVelocity(0.0, 0.0, -height, duration=1)
             time.sleep(1)
-
-            # randomly start yaw
-            yaw = np.random.uniform(low=-90, high=90)
-            if i == 0:
-                self.cmd_client.rotateToYaw(130)
-            elif i == 1:
-                self.cmd_client.rotateToYaw(10)
-
 
             # sample i-th data at this location
             self.execute_single_path()
 
             # reset the sample position
             self.cmd_client.moveToPosition(cur_pos.x_val, cur_pos.y_val, cur_pos.z_val, 0.5)
+            time.sleep(0.5)
+            print 'reset {}-th sampling location finished!'.format(i)
 
             # go to next round at this location
             self.pnt_idx += 1
 
         self.pnt_idx = 0
+
 
 
 def make_dir(args, root):
@@ -311,22 +346,32 @@ if __name__ == '__main__':
     args.front_depth = '3.front_depth'
     args.bottom_depth = '4.bottom_depth'
     args.poses = '5.poses'
+    args.root = '/home/zhudelong/Dataset'
 
-    sample_idx = 10
-    root = join('/home/zhudelong/Dataset/airsim_data', str(sample_idx))
-    if exists(root):
-        raise IOError('{} exist!'.format(root))
-
-    os.mkdir(root)
-    args.root = root
     ctrl = Controller(args)
-    ctrl.cmd_client.rotateToYaw(30)
-    time.sleep(5)
-    ctrl.cmd_client.rotateToYaw(60)
-    time.sleep(5)
-    ctrl.cmd_client.rotateToYaw(180)
-    time.sleep(5)
-    ctrl.cmd_client.rotateToYaw(-90)
-    time.sleep(5)
-    # ctrl.execute_sampling(1)
+    anchors = get_anchors()
+    anchor_num = anchors.shape[0]
+    round_num = anchors.shape[1] - 3
+
+    for idx in range(anchor_num):
+
+        # move to that target
+        ctrl.cmd_client.moveToPosition(anchors[idx, 0], anchors[idx, 1], anchors[idx, 2], velocity=3)
+        time.sleep(2)
+
+        # reset the rotation
+        ctrl.cmd_client.rotateToYaw(0)
+        time.sleep(2)
+
+        # make directories
+        pnt_root = join('/home/zhudelong/Dataset/airsim_data', str(idx))
+        if exists(pnt_root):
+            raise IOError('{} exist!'.format(pnt_root))
+        os.mkdir(pnt_root)
+        ctrl.args.root = pnt_root
+
+        # sample data for sample_num round
+        yaws = anchors[idx, 3:anchors.shape[1]]
+        ctrl.execute_sampling(round_num, yaws)
+
     ctrl.cmd_client.reset()
