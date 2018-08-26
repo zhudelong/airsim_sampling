@@ -170,20 +170,21 @@ class Controller:
         self.low_speed = 0.1
 
         # the yaw rate range
-        self.yaw_range = [0.5, 8.0]
+        self.yaw_range = [1.0, 8.0]
 
         # represent different sampling mode
         self.mask_t = [[0, 0, 1], [0, 1, 0], [0, 1, 1], [1, 0, 0], [1, 0, 1], [1, 1, 0], [1, 1, 1]]
 
         # sampling time for each mode in self.mask_t
-        self.tt_time = 10
-        self.ty_time = 10
+        self.tt_time = 8
+        self.ty_time = 8
 
         # sampling time for yaw
         self.yy_time = 6
+        self.yy_seq = 2
 
         # the random height for the starting of each round
-        self.start_random_height = [0, 0.5]
+        self.start_random_height = [-0.5, 1.0]
 
 
     def make_dir(self):
@@ -207,7 +208,7 @@ class Controller:
         seq = self.make_dir()
 
         # remove start unstable frames
-        time.sleep(1)
+        time.sleep(1.5)
         print 'saving ...'
 
         # write data
@@ -217,10 +218,10 @@ class Controller:
             self.save_data.loop(seq)
             now = time.time()
             img_num += 1
-            if now - start > interval - 1:
+            if now - start > interval - 1.5:
                 break
         self.seq_idx += 1
-        time.sleep(1)
+        time.sleep(1.5)
         print 'finished saving, total {} images, crashed {} images!'.format(img_num, crs_num)
 
     def parse_vel(self, vel):
@@ -243,7 +244,8 @@ class Controller:
 
         # backward
         self.cmd_client.moveByVelocity(-mode[0] * vel[0], -mode[1] * vel[1], mode[2] * vel[2], duration=interval)
-        self.write(interval)
+        # self.write(interval)
+        time.sleep(interval)
 
     def ty(self, mode, vel, yaw, interval):
         # increase randomness
@@ -259,13 +261,14 @@ class Controller:
         # backward
         yaw_mode = YawMode(True, -yaw)
         self.cmd_client.moveByVelocity(-mode[0] * vel[0], -mode[1] * vel[1], mode[2] * vel[2], duration=interval, yaw_mode=yaw_mode)
-        self.write(interval)
+        # self.write(interval)
+        time.sleep(interval)
 
     def yy(self):
-        for i in range(6):
+        for i in range(self.yy_seq):
             # increase randomness
             yaw = np.random.uniform(low=self.yaw_range[0], high=self.yaw_range[1])
-            height = np.random.uniform(low = 0.1, high=0.5)
+            height = np.random.uniform(low = 0.3, high=1.0)
             print "current mode: {}".format(yaw)
 
             # sample yaw
@@ -296,6 +299,8 @@ class Controller:
     def execute_sampling(self, num, yaws):
         # record the sample location
         cur_pos = self.cmd_client.getPosition()
+        print('current position is : {}, {}, {}'.format(cur_pos.x_val, cur_pos.y_val, cur_pos.z_val))
+
         for i in range(num):
 
             # reset sequence idx for each sample
@@ -304,19 +309,21 @@ class Controller:
 
             # rotate to sample yaws
             self.cmd_client.rotateToYaw(yaws[i])
+            time.sleep(1)
             print 'yaw angle is set to {}!'.format(yaws[i])
 
             # randomly start height
             height = np.random.uniform(self.start_random_height[0], self.start_random_height[1])
             self.cmd_client.moveByVelocity(0.0, 0.0, -height, duration=1)
             time.sleep(1)
+            cur_poses = self.cmd_client.getPosition()
+            print('current position after random height is : {}, {}, {}'.format(cur_poses.x_val, cur_poses.y_val, cur_poses.z_val))
 
             # sample i-th data at this location
             self.execute_single_path()
 
             # reset the sample position
             self.cmd_client.moveToPosition(cur_pos.x_val, cur_pos.y_val, cur_pos.z_val, 0.5)
-            time.sleep(0.5)
             print 'reset {}-th sampling location finished!'.format(i)
 
             # go to next round at this location
@@ -351,11 +358,15 @@ if __name__ == '__main__':
     ctrl = Controller(args)
     anchors = get_anchors()
     anchor_num = anchors.shape[0]
+    print anchor_num
     round_num = anchors.shape[1] - 3
 
     for idx in range(anchor_num):
-
+        print('+++++this is {} anchor!'.format(idx))
+        if idx < 57:
+            continue
         # move to that target
+        print('move to ancher: {}, {}, {}'.format(anchors[idx, 0], anchors[idx, 1], anchors[idx, 2]))
         ctrl.cmd_client.moveToPosition(anchors[idx, 0], anchors[idx, 1], anchors[idx, 2], velocity=3)
         time.sleep(2)
 
@@ -365,9 +376,11 @@ if __name__ == '__main__':
 
         # make directories
         pnt_root = join('/home/zhudelong/Dataset/airsim_data', str(idx))
+
         if exists(pnt_root):
             raise IOError('{} exist!'.format(pnt_root))
         os.mkdir(pnt_root)
+
         ctrl.args.root = pnt_root
 
         # sample data for sample_num round

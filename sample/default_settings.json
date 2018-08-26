@@ -1,0 +1,30 @@
+{
+  "SeeDocsAt": "https://github.com/Microsoft/AirSim/blob/master/docs/settings.md",
+  "SettingsVersion": 1.0, 
+  "ClockSpeed": 1,
+  "ViewMode": "",
+  "CaptureSettings": [
+  {
+    "ImageType": 0,
+    "Width": 512,
+    "Height": 384,
+    "FOV_Degrees": 90,
+    "AutoExposureSpeed": 100,
+    "AutoExposureBias": 0,
+    "AutoExposureMaxBrightness": 0.64,
+    "AutoExposureMinBrightness": 0.03,
+    "Gimbal_Control": true
+  },
+  {
+    "ImageType": 1, 
+    "Width": 512,
+    "Height": 384,
+    "FOV_Degrees": 90
+  },
+  {
+    "ImageType": 5, 
+    "Width": 512,
+    "Height": 384,
+    "FOV_Degrees": 90
+  }]
+}

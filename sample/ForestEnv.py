@@ -14,28 +14,118 @@ import numpy as np
                         [-314.889832, -1760.927246, 502.103882, 30, -120],
                         [-813.773682, -1442.502686, 561.030823, 135, 0]])
 '''
+np.random.seed(666)
 
+
+def neighbor_road():
+
+    z_val = 650
+
+    corner1 = np.array([-12490.0,   11110.0, 650.0])
+    corner2 = np.array([ 12990.0,   11110.0, 650.0])
+    corner3 = np.array([ 12990.0,  -14380.0, 650.0])
+    corner4 = np.array([ -12490.0, -14380.0, 650.0])
+
+    corner1_2 = [-12490.0, -1620.0, 650.0]
+    corner3_4 = [ 12990.0, -1620.0, 650.0]
+
+    corner2_3 = [ 250.000, 11110.0, 650.0]
+    corner4_1 = [ 250.000, -14380.0, 650.0]
+
+    way12 = get_way_points_x(corner1, corner2, z_val, 10, 'increase')
+    way23 = get_way_points_y(corner2, corner3, z_val, 10, 'decrease')
+    way34 = get_way_points_x(corner3, corner4, z_val, 10, 'decrease')
+    way41 = get_way_points_y(corner4, corner1, z_val, 10, 'increase')
+
+
+    corner1 = np.expand_dims(corner1, axis=0)
+    corner2 = np.expand_dims(corner2, axis=0)
+    corner3 = np.expand_dims(corner3, axis=0)
+    corner4 = np.expand_dims(corner4, axis=0)
+    out_road = np.concatenate([corner1, way12, corner2, way23, corner3, way34, corner4, way41, corner1], axis=0)
+    # print out_road
+
+
+    way12_34 = get_way_points_x(corner1_2, corner3_4, z_val, 10, 'increase')
+    way23_41 = get_way_points_y(corner2_3, corner4_1, z_val, 10, 'decrease')
+
+    corner1_2 = np.expand_dims(corner1_2, axis=0)
+    corner3_4 = np.expand_dims(corner3_4, axis=0)
+
+    corner2_3 = np.expand_dims(corner2_3, axis=0)
+    corner4_1 = np.expand_dims(corner4_1, axis=0)
+    cross_road = np.concatenate([corner1_2, way12_34, corner3_4, corner2_3, way23_41, corner4_1], axis=0)
+    # print cross_road
+
+    road_anchor = np.concatenate([out_road, cross_road], axis=0)
+    print road_anchor
+    return road_anchor
+
+
+
+def get_way_points_x(corner1, corner2, z_val, anchor_num, order):
+    way12_x = np.random.uniform(corner1[0], corner2[0], anchor_num)
+
+    if order == 'increase':
+        way12_x = np.sort(way12_x)
+    elif order == 'decrease':
+        way12_x = -np.sort(-way12_x)
+    else:
+        raise IOError('WRONG PARA')
+
+    way12_y = np.ones(way12_x.shape) * corner1[1]
+    way12_z = np.ones(way12_x.shape) * z_val
+    way12 = np.stack([way12_x, way12_y, way12_z], axis=1)
+
+    return way12
+
+def get_way_points_y(corner1, corner2, z_val, anchor_num, order):
+    way12_y = np.random.uniform(corner1[1], corner2[1], anchor_num)
+
+    if order == 'increase':
+        way12_y = np.sort(way12_y)
+    elif order == 'decrease':
+        way12_y = -np.sort(-way12_y)
+    else:
+        raise IOError('WRONG PARA')
+    way12_x = np.ones(way12_y.shape) * corner1[0]
+    way12_z = np.ones(way12_x.shape) * z_val
+    way12 = np.stack([way12_x, way12_y, way12_z], axis=1)
+    return way12
 
 def get_anchors():
-    global anchors
+    # global anchors
     # map anchor coordinates
-    anchors = np.array([#[6460.178223, 668.619202, 700.778442, 20, -100],
-                        [5790.064941, 188.838623, 739.244995, 40, -140],
-                        [4783.101074, -688.609985, 719.003784, 30, -140],
-                        [3701.682617, -1560.509155, 682.469177, 40, -130],
-                        [2391.682617, -2430.509277, 672.469177, 30, 170],
-                        [1291.682617, -2310.509277, 692.469177, -20, 160],
-                        [-208.317383, -1790.509277, 792.469177, -30, 150]])
+    # anchors = np.array([#[6460.178223, 668.619202, 700.778442, 20, -100],
+    #                     #[5790.064941, 188.838623, 739.244995, 40, -140],
+    #                     #[4783.101074, -688.609985, 719.003784, 30, -140],
+    #                     #[3701.682617, -1560.509155, 682.469177, 40, -130],
+    #                     #[2391.682617, -2430.509277, 672.469177, 30, 170],
+    #                     [1291.682617, -2310.509277, 692.469177, -20, 160],
+    #                     [-208.317383, -1790.509277, 792.469177, -30, 150]])
+    #
+    #
+    #                     # [6188.813477, 7760.487793, 319.518463, 30, -120],
+    #                     # [-6111.811035, -6095.811035, 400.0, 30, -120],
+    #                     # [70.649345, 4719.407715, 486.207031, 30, -120],
+    #                     # [-484.956573, 3654.447998, 709.218933, 30, -120],
+    #                     # [-314.889832, -1760.927246, 502.103882, 30, -120],
+    #                     # [-813.773682, -1442.502686, 561.030823, 135, 0]])
 
 
-                        # [6188.813477, 7760.487793, 319.518463, 30, -120],
-                        # [-6111.811035, -6095.811035, 400.0, 30, -120],
-                        # [70.649345, 4719.407715, 486.207031, 30, -120],
-                        # [-484.956573, 3654.447998, 709.218933, 30, -120],
-                        # [-314.889832, -1760.927246, 502.103882, 30, -120],
-                        # [-813.773682, -1442.502686, 561.030823, 135, 0]])
+
+    # # map start coordinates
+    # orig = np.array([5650, 730, 380]) / 100.0
+
+
+    # Neighborhood
+    anchors = neighbor_road()
+    angel = np.random.uniform(-180, 180, anchors.shape)
+    anchors = np.concatenate([anchors, angel], axis=1)
+    print anchors
+
     # map start coordinates
-    orig = np.array([5650, 730, 380]) / 100.0
+    orig = np.array([-12120.0, 11320.0, 120]) / 100.0
     # get NED coordinates
     anchors[:, 0:3] = anchors[:, 0:3] / 100.0
     anchors[:, 0:3] = anchors[:, 0:3] - orig
@@ -43,5 +133,5 @@ def get_anchors():
     return anchors
 
 if __name__ == '__main__':
-    print get_anchors()
-
+    # print neighbor_road()
+    print get_anchors()[57,:]
