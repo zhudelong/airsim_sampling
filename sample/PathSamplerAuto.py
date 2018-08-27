@@ -345,7 +345,7 @@ def make_dir(args, root):
     print('make dir:{}'.format(root))
     return root
 
-
+# 45 -- first cross
 if __name__ == '__main__':
     args = argparse.ArgumentParser()
     args.front_rgb = '1.front_rgb'
@@ -363,8 +363,11 @@ if __name__ == '__main__':
 
     for idx in range(anchor_num):
         print('+++++this is {} anchor!'.format(idx))
-        if idx < 57:
-            continue
+
+        # for avoiding collision
+        if idx == 57:
+            ctrl.cmd_client.moveToPosition(anchors[11, 0], anchors[11, 1], anchors[11, 2], velocity=3)
+
         # move to that target
         print('move to ancher: {}, {}, {}'.format(anchors[idx, 0], anchors[idx, 1], anchors[idx, 2]))
         ctrl.cmd_client.moveToPosition(anchors[idx, 0], anchors[idx, 1], anchors[idx, 2], velocity=3)
