@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="BookmarkManager">
-    <bookmark url="file://$PROJECT_DIR$/ForestEnv.py" line="99" />
+    <bookmark url="file://$PROJECT_DIR$/ForestEnv.py" line="97" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9cde96ce-e61e-4d1b-85f2-6d250656f18b" name="Default Changelist" comment="" />
@@ -29,25 +29,27 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="json" value="1" />
+          <entry key="json" value="2" />
           <entry key="py" value="22" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="JSON" value="1" />
+          <entry key="JSON" value="2" />
           <entry key="Python" value="22" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="Python Console" value="155" />
-          <entry key="py" value="5377" />
+          <entry key="Python Console" value="186" />
+          <entry key="json" value="1" />
+          <entry key="py" value="5827" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="5532" />
+          <entry key="JSON" value="1" />
+          <entry key="Python" value="6013" />
         </counts>
       </usages-collector>
     </session>
@@ -57,12 +59,21 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/PathSamplerAuto.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="301">
-              <caret line="366" column="8" selection-start-line="366" selection-start-column="8" selection-end-line="366" selection-end-column="8" />
+            <state relative-caret-position="197">
+              <caret line="393" selection-start-line="393" selection-end-line="394" selection-end-column="22" />
               <folding>
                 <element signature="e#0#21#0" expanded="true" />
-                <marker date="1535334249284" expanded="true" signature="8462:8468" ph="..." />
+                <marker date="1535404812241" expanded="true" signature="8462:8468" ph="..." />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/default_settings.json">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="21">
+              <caret line="1" column="81" selection-start-line="1" selection-start-column="81" selection-end-line="1" selection-end-column="81" />
             </state>
           </provider>
         </entry>
@@ -70,10 +81,10 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ForestEnv.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1767">
-              <caret line="99" column="25" selection-start-line="99" selection-start-column="25" selection-end-line="99" selection-end-column="25" />
+            <state relative-caret-position="-125">
+              <caret line="128" column="25" lean-forward="true" selection-start-line="128" selection-start-column="25" selection-end-line="128" selection-end-column="25" />
               <folding>
-                <marker date="1535306513190" expanded="true" signature="3449:3450" ph="..." />
+                <marker date="1535397982506" expanded="true" signature="3460:3461" ph="..." />
               </folding>
             </state>
           </provider>
@@ -100,6 +111,7 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/PathSampler.py" />
+        <option value="$PROJECT_DIR$/default_settings.json" />
         <option value="$PROJECT_DIR$/ForestEnv.py" />
         <option value="$PROJECT_DIR$/PathSamplerAuto.py" />
       </list>
@@ -230,11 +242,11 @@
     <frame x="1680" y="-4" width="1680" height="1007" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.184513" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.184513" />
       <window_info id="Structure" order="1" weight="0.25" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32960895" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.18435754" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.36648044" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.5318436" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -314,9 +326,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/default_settings.json">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file:///usr/local/lib/python2.7/dist-packages/msgpackrpc/future.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-693">
@@ -324,23 +333,30 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/default_settings.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="21">
+          <caret line="1" column="81" selection-start-line="1" selection-start-column="81" selection-end-line="1" selection-end-column="81" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/ForestEnv.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1767">
-          <caret line="99" column="25" selection-start-line="99" selection-start-column="25" selection-end-line="99" selection-end-column="25" />
+        <state relative-caret-position="-125">
+          <caret line="128" column="25" lean-forward="true" selection-start-line="128" selection-start-column="25" selection-end-line="128" selection-end-column="25" />
           <folding>
-            <marker date="1535306513190" expanded="true" signature="3449:3450" ph="..." />
+            <marker date="1535397982506" expanded="true" signature="3460:3461" ph="..." />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/PathSamplerAuto.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="301">
-          <caret line="366" column="8" selection-start-line="366" selection-start-column="8" selection-end-line="366" selection-end-column="8" />
+        <state relative-caret-position="197">
+          <caret line="393" selection-start-line="393" selection-end-line="394" selection-end-column="22" />
           <folding>
             <element signature="e#0#21#0" expanded="true" />
-            <marker date="1535334249284" expanded="true" signature="8462:8468" ph="..." />
+            <marker date="1535404812241" expanded="true" signature="8462:8468" ph="..." />
           </folding>
         </state>
       </provider>

@@ -235,6 +235,11 @@ class Controller:
     def tt(self, mode, vel, interval):
         # to increase randomness, we randomly sample speed for each mod
         vel = np.random.uniform(self.low_speed, self.high_speed, size=[3, ])
+        sign = np.random.randint(0, 2, 2)
+        if sign[0] == 1:
+            vel[0] = -vel[0]
+        if sign[1] == 1:
+            vel[1] = -vel[1]
         vel = self.parse_vel(vel)
         print "current mode: {}, {}, {}".format(mode[0] * vel[0], mode[1] * vel[1], mode[2] * vel[2])
 
@@ -250,11 +255,21 @@ class Controller:
     def ty(self, mode, vel, yaw, interval):
         # increase randomness
         vel = np.random.uniform(self.low_speed, self.high_speed, size=[3, ])
+
+        sign = np.random.randint(0, 2, 3)
+        if sign[0] == 1:
+            vel[0] = -vel[0]
+        if sign[1] == 1:
+            vel[1] = -vel[1]
+        if sign[2] == 1:
+            yaw = -yaw
+
         vel = self.parse_vel(vel)
         print "current mode: {}, {}, {}, {}".format(mode[0] * vel[0], mode[1] * vel[1], mode[2] * vel[2], yaw)
 
         # forward
         yaw_mode = YawMode(True, yaw)
+
         self.cmd_client.moveByVelocity(mode[0] * vel[0], mode[1] * vel[1], -mode[2] * vel[2], duration=interval, yaw_mode=yaw_mode)
         self.write(interval)
 
@@ -364,10 +379,6 @@ if __name__ == '__main__':
     for idx in range(anchor_num):
         print('+++++this is {} anchor!'.format(idx))
 
-        # for avoiding collision
-        if idx == 57:
-            ctrl.cmd_client.moveToPosition(anchors[11, 0], anchors[11, 1], anchors[11, 2], velocity=3)
-
         # move to that target
         print('move to ancher: {}, {}, {}'.format(anchors[idx, 0], anchors[idx, 1], anchors[idx, 2]))
         ctrl.cmd_client.moveToPosition(anchors[idx, 0], anchors[idx, 1], anchors[idx, 2], velocity=3)
@@ -379,6 +390,9 @@ if __name__ == '__main__':
 
         # make directories
         pnt_root = join('/home/zhudelong/Dataset/airsim_data', str(idx))
+
+        # if idx < 18:
+        #     continue
 
         if exists(pnt_root):
             raise IOError('{} exist!'.format(pnt_root))
