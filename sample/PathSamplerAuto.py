@@ -232,9 +232,15 @@ class Controller:
         return [x, y, vel[2]]
 
 
+
     def tt(self, mode, vel, interval):
         # to increase randomness, we randomly sample speed for each mod
         vel = np.random.uniform(self.low_speed, self.high_speed, size=[3, ])
+        sign = np.random.randint(0, 2, 2)
+        if sign[0] == 1:
+            vel[0] = -vel[0]
+        if sign[1] == 1:
+            vel[1] = -vel[1]
         vel = self.parse_vel(vel)
         print "current mode: {}, {}, {}".format(mode[0] * vel[0], mode[1] * vel[1], mode[2] * vel[2])
 
@@ -250,11 +256,21 @@ class Controller:
     def ty(self, mode, vel, yaw, interval):
         # increase randomness
         vel = np.random.uniform(self.low_speed, self.high_speed, size=[3, ])
+
+        sign = np.random.randint(0, 2, 3)
+        if sign[0] == 1:
+            vel[0] = -vel[0]
+        if sign[1] == 1:
+            vel[1] = -vel[1]
+        if sign[2] == 1:
+            yaw = -yaw
+
         vel = self.parse_vel(vel)
         print "current mode: {}, {}, {}, {}".format(mode[0] * vel[0], mode[1] * vel[1], mode[2] * vel[2], yaw)
 
         # forward
         yaw_mode = YawMode(True, yaw)
+
         self.cmd_client.moveByVelocity(mode[0] * vel[0], mode[1] * vel[1], -mode[2] * vel[2], duration=interval, yaw_mode=yaw_mode)
         self.write(interval)
 

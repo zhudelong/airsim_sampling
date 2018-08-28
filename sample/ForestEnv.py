@@ -120,7 +120,7 @@ def get_anchors():
 
     # Neighborhood
     anchors = neighbor_road()
-    angel = np.random.uniform(-180, 180, anchors.shape)
+    angel = np.random.uniform(-180, 180, (anchors.shape[0], 2))
     anchors = np.concatenate([anchors, angel], axis=1)
     print anchors
 
