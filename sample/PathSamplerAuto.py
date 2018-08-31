@@ -181,7 +181,7 @@ class Controller:
 
         # sampling time for yaw
         self.yy_time = 6
-        self.yy_seq = 2
+        self.yy_seq = 4
 
         # the random height for the starting of each round
         self.start_random_height = [-0.5, 1.0]

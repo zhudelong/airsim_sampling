@@ -1,0 +1,4 @@
+.idea/*
+./sample/.idea/*
+*/.idea/*
+*.pyc
